@@ -40,6 +40,11 @@ import struct
 import csv
 from pathlib import Path
 
+# ─── Simulation timestep constants (must match dump_fields.cpp) ────────
+DT_TQ_MS = 1e-5 * 1e3    # Thermal quench dt in ms (dt_tq = 1e-5 s)
+DT_CQ_MS = 1e-5 * 1e3    # Current quench dt in ms (dt_cq = 1e-5 s)
+DT_RE_MS = 1e-7 * 1e3    # Runaway electron dt in ms (dt_re = 1e-7 s)
+
 
 # ─── Publication Style ────────────────────────────────────────────────
 plt.rcParams.update({
@@ -664,8 +669,8 @@ def fig14_disruption_summary(indir, outdir, R_b, Z_b):
                                norm=LogNorm(vmin=0.005, vmax=12))
             plt.colorbar(im, ax=ax, label='Te [keV]', shrink=0.75)
         plasma_boundary_overlay(ax, R_b, Z_b, color='cyan', lw=1.5)
-        dt = step * 0.01
-        ax.set_title(f'TQ: t={dt:.1f} ms', fontsize=11)
+        t_ms = step * DT_TQ_MS
+        ax.set_title(f'TQ: t={t_ms:.1f} ms', fontsize=11)
         standard_axes(ax)
 
     # Row 3: Current Quench + RE
@@ -679,8 +684,8 @@ def fig14_disruption_summary(indir, outdir, R_b, Z_b):
                                norm=LogNorm())
             plt.colorbar(im, ax=ax, label='|E| [V/m]', shrink=0.75)
         plasma_boundary_overlay(ax, R_b, Z_b, color='white', lw=1.5)
-        dt = step * 0.01
-        ax.set_title(f'CQ E-field: t={dt:.0f} ms', fontsize=11)
+        t_ms = step * DT_CQ_MS
+        ax.set_title(f'CQ E-field: t={t_ms:.0f} ms', fontsize=11)
         standard_axes(ax)
 
     ax = fig.add_subplot(gs[2, 3])
