@@ -1,6 +1,0 @@
-/home/runner/work/TokamakReactor-HPC-Simulation/TokamakReactor-HPC-Simulation/_codeql_build_dir/CMakeFiles/tokamak_lib.dir
-/home/runner/work/TokamakReactor-HPC-Simulation/TokamakReactor-HPC-Simulation/_codeql_build_dir/CMakeFiles/tokamak_sim.dir
-/home/runner/work/TokamakReactor-HPC-Simulation/TokamakReactor-HPC-Simulation/_codeql_build_dir/CMakeFiles/run_tests.dir
-/home/runner/work/TokamakReactor-HPC-Simulation/TokamakReactor-HPC-Simulation/_codeql_build_dir/CMakeFiles/test.dir
-/home/runner/work/TokamakReactor-HPC-Simulation/TokamakReactor-HPC-Simulation/_codeql_build_dir/CMakeFiles/edit_cache.dir
-/home/runner/work/TokamakReactor-HPC-Simulation/TokamakReactor-HPC-Simulation/_codeql_build_dir/CMakeFiles/rebuild_cache.dir
