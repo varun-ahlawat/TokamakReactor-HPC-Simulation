@@ -90,3 +90,8 @@ enable_testing()
 add_executable(run_tests tests/test_main.cpp)
 target_link_libraries(run_tests PRIVATE tokamak_lib)
 add_test(NAME TokamakTests COMMAND run_tests)
+
+# Physics validation tests (litmus test for physical correctness)
+add_executable(run_validation_tests tests/test_physics_validation.cpp)
+target_link_libraries(run_validation_tests PRIVATE tokamak_lib)
+add_test(NAME PhysicsValidation COMMAND run_validation_tests)

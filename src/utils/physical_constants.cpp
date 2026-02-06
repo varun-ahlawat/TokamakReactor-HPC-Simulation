@@ -21,11 +21,13 @@ double spitzer_resistivity(double T_e_keV, double Z_eff, double ln_lambda) {
 }
 
 double dreicer_field(double n_e, double T_e_keV, double ln_lambda) {
-    // Dreicer field: E_D = n_e * e³ * ln Λ / (4π ε₀² * m_e * c²)
-    // Simplified: E_D ≈ n_e * e * ln_lambda / (4π ε₀ * m_e * c²)
+    // Dreicer field: E_D = n_e * e³ * ln Λ / (4π ε₀² * kT)
+    // where kT is the thermal energy in Joules.
+    // At ne=1e20, Te=10 eV (0.01 keV), lnΛ~8.5: E_D ≈ 4400 V/m
     double T_J = T_e_keV * keV_to_J;
     if (T_J < 1.0e-25) T_J = 1.0e-25;
-    return n_e * e_charge * ln_lambda / (4.0 * M_PI * epsilon_0 * T_J);
+    return n_e * e_charge * e_charge * e_charge * ln_lambda /
+           (4.0 * M_PI * epsilon_0 * epsilon_0 * T_J);
 }
 
 double connor_hastie_critical_energy(double E_over_Ed) {

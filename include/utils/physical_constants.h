@@ -36,7 +36,7 @@ double coulomb_logarithm(double n_e, double T_e_keV);
 /// Spitzer resistivity [Ohm·m]
 double spitzer_resistivity(double T_e_keV, double Z_eff, double ln_lambda);
 
-/// Critical electric field for runaway electron generation [V/m]
+/// Dreicer electric field E_D = n_e e³ lnΛ / (4π ε₀² kT) [V/m]
 double dreicer_field(double n_e, double T_e_keV, double ln_lambda);
 
 /// Connor-Hastie critical energy for runaway electrons [keV]

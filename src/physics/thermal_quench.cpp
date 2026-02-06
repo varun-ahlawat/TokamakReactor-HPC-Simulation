@@ -73,6 +73,18 @@ double ThermalQuench::advance(double dt) {
             // ∂Te/∂t = -P_rad/(1.5 * ne * keV_to_J) + χ∇²Te
             double cooling = state_.radiation_power(i, j) /
                              (1.5 * ne * constants::keV_to_J);
+
+            // Limit cooling to not exceed available thermal energy per step
+            // (enforces energy conservation: cannot radiate more than exists)
+            double T_available = state_.Te(i, j) - config_.wall_temperature;
+            if (T_available < 0.0) T_available = 0.0;
+            double max_cooling_rate = T_available / dt;
+            if (cooling > max_cooling_rate) {
+                cooling = max_cooling_rate;
+                // Update radiation_power to reflect actual energy radiated
+                state_.radiation_power(i, j) = cooling * 1.5 * ne * constants::keV_to_J;
+            }
+
             state_.Te(i, j) += dt * (dTe_dt(i, j) - cooling);
 
             // Floor temperature

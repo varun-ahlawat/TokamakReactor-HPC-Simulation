@@ -216,9 +216,9 @@ void RunawayElectrons::compute_avalanche(const ScalarField& ne,
             double E_c = constants::dreicer_field(n, T_cold, ln_lambda) *
                          constants::default_T_e; // Scale to critical
 
-            // Use simpler estimate: E_c ≈ n_e * e^3 * ln Λ / (4π ε₀ m_e c²)
+            // Use simpler estimate: E_c ≈ n_e * e^3 * ln Λ / (4π ε₀² m_e c²)
             E_c = n * std::pow(constants::e_charge, 3) * ln_lambda /
-                  (4.0 * M_PI * constants::epsilon_0 *
+                  (4.0 * M_PI * constants::epsilon_0 * constants::epsilon_0 *
                    constants::m_electron * constants::c_light * constants::c_light);
 
             growth(i, j) = config_.avalanche_coefficient *
