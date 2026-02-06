@@ -1,5 +1,118 @@
 _...starting as a **cloud computing** and **big data programming** class project..._
 
+# Tokamak Reactor HPC Simulation
+
+High Performance Computing simulation of plasma disruptions in nuclear fusion reactors (tokamaks). This code simulates the complete disruption cascade — from the initial MHD instability trigger through the thermal quench, current quench, and runaway electron avalanche — providing a "virtual tokamak" for testing mitigation strategies.
+
+**Features:**
+- Complete 4-phase disruption cascade simulation (MHD → Thermal Quench → Current Quench → Runaway Electrons)
+- Multi-physics coupling framework with adaptive multi-rate time-stepping
+- Disruption Mitigation System (shattered pellet injection) model
+- Parallelized with MPI (distributed memory) + OpenMP (shared memory)
+- Diagnostic output and Python visualization tools
+- 32 unit tests covering all physics modules
+
+Future plans to train AI for reducing compute required to simulate real nuclear fusion reactors.
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- C++17 compiler (GCC 9+, Clang 10+)
+- CMake 3.16+
+- MPI implementation (OpenMPI or MPICH)
+- OpenMP support
+- Python 3.8+ with NumPy, Matplotlib (for visualization)
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install build-essential cmake libopenmpi-dev openmpi-bin
+pip3 install numpy matplotlib
+```
+
+### Build
+
+```bash
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)
+```
+
+### Run Tests
+
+```bash
+mpirun -np 1 ./run_tests
+```
+
+### Run Simulation
+
+```bash
+# Default: 64x64 grid, 10ms simulation, DMS enabled
+mpirun -np 1 ./tokamak_sim
+
+# Custom parameters
+mpirun -np 4 ./tokamak_sim --nr 128 --nz 128 --tmax 20 --diag-interval 100
+
+# Without disruption mitigation (to see unmitigated runaway electron growth)
+mpirun -np 1 ./tokamak_sim --no-dms
+
+# Show help
+./tokamak_sim --help
+```
+
+### Visualize Results
+
+```bash
+python3 ../scripts/visualize.py output/
+```
+
+This generates:
+- `disruption_timeseries.png` — Time series of temperature, current, island width, E-field, RE current, radiation
+- `disruption_phases.png` — Phase evolution overview
+- 2D field snapshots (poloidal flux, pressure, temperature, E-field, RE density)
+
+---
+
+## Architecture
+
+```
+TokamakDisruptionSim/
+├── include/                    # Header files
+│   ├── core/                   # Grid, Field, Time integrators
+│   ├── physics/                # MHD, Thermal Quench, Current Quench, Runaway Electrons, DMS
+│   ├── coupling/               # Multi-physics coupler (the "computational glue")
+│   ├── io/                     # Diagnostics and data output
+│   └── utils/                  # Physical constants
+├── src/                        # Implementation files
+│   ├── core/                   # Grid, Field, Time integration (RK4, RK2, Euler)
+│   ├── physics/                # Physics solver implementations
+│   ├── coupling/               # Multi-physics coupling framework
+│   ├── io/                     # I/O implementations
+│   ├── utils/                  # Constants and utilities
+│   └── main.cpp                # Main simulation entry point
+├── tests/                      # Unit tests (32 tests)
+├── scripts/                    # Python visualization tools
+├── CMakeLists.txt              # Build system
+└── README.md
+```
+
+### Disruption Cascade Phases
+
+The simulation models the four phases of a tokamak disruption:
+
+| Phase | Physics | Timescale | Solver |
+|-------|---------|-----------|--------|
+| **1. MHD Instability** | Resistive MHD, tearing modes | ~μs | 2D finite-difference MHD solver |
+| **2. Thermal Quench** | Radiative cooling, impurity influx, stochastic transport | ~ms | Radiation + diffusion model |
+| **3. Current Quench** | Ohmic decay, Spitzer resistivity, E-field generation | ~ms | L/R circuit model |
+| **4. Runaway Avalanche** | Dreicer generation, Rosenbluth-Putvinski avalanche | ~ns | Kinetic growth model |
+
+The **Multi-Physics Coupler** manages phase transitions, data handoff between solvers, and ensures each phase runs at its natural timescale.
+
+---
+
 ## Tokamak Control Systems
 
 A tokamak is a symphony of complex, high-speed feedback loops. It's one of the most sophisticated real-time control environments ever created. The main systems are:
@@ -46,21 +159,10 @@ The physicists have the equations for each separate domain (MHD, atomic, kinetic
 
 Solving this requires breakthroughs in **numerical methods, multi-physics coupling algorithms, and exascale computing frameworks.** This isn't about physics; it's about inventing the mathematical and computational machinery that allows the physics to be calculated. That is the bottleneck, and that's where we can contribute.
 
-# Tokamak Reactor HPC Simulation
-High Performance Computing Experimental Simualtion;
-Future plans to train AI for reducing compute required to simulate real nuclear fusion reactors;
+---
 
-# References:
-```
-A physics-constrained deep learning surrogate model of the runaway electron avalanche growth rate
-https://arxiv.org/html/2403.04948v1?
-```
-```
-Fokker-Planck Equation
-https://en.wikipedia.org/wiki/Fokker–Planck_equation
-```
-```
-Chapter 6
-Statistical Physics: Statics, Dynamics and Renormalization
-By Leo P. Kadanoff
-```
+## References
+
+- [A physics-constrained deep learning surrogate model of the runaway electron avalanche growth rate](https://arxiv.org/html/2403.04948v1)
+- [Fokker-Planck Equation](https://en.wikipedia.org/wiki/Fokker–Planck_equation)
+- Chapter 6, *Statistical Physics: Statics, Dynamics and Renormalization*, Leo P. Kadanoff

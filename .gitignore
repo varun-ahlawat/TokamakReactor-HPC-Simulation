@@ -1,0 +1,38 @@
+# Build artifacts
+build/
+_codeql_build_dir/
+_codeql_detected_source_root
+*.o
+*.a
+*.so
+*.dylib
+
+# Executables
+tokamak_sim
+run_tests
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Output data
+output/
+viz_output/
+*.h5
+*.hdf5
+*.dat
+*.vtk
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# OS
+.DS_Store
+Thumbs.db
