@@ -241,18 +241,25 @@ TEST(mhd_perturbation) {
     MHDSolver solver(grid);
     solver.initialize_equilibrium();
 
-    double psi_before = solver.state().Bpol_psi(16, 16);
-    solver.apply_perturbation();
-    // Perturbation should modify the flux
-    // (might not change at exact center, check off-center)
-    bool changed = false;
+    // Record flux values before perturbation
+    double psi_sum_before = 0.0;
     for (int i = 8; i < 24; ++i) {
         for (int j = 8; j < 24; ++j) {
-            // Just check that some points changed
+            psi_sum_before += std::abs(solver.state().Bpol_psi(i, j));
         }
     }
-    // Perturbation was applied (no crash)
-    ASSERT_TRUE(true);
+
+    solver.apply_perturbation();
+
+    // Check that flux values changed after perturbation
+    double psi_sum_after = 0.0;
+    for (int i = 8; i < 24; ++i) {
+        for (int j = 8; j < 24; ++j) {
+            psi_sum_after += std::abs(solver.state().Bpol_psi(i, j));
+        }
+    }
+
+    ASSERT_TRUE(std::abs(psi_sum_after - psi_sum_before) > 1e-10);
 }
 
 TEST(mhd_advance) {

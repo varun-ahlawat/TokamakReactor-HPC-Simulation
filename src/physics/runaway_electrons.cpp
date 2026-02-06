@@ -3,7 +3,7 @@
 ///
 /// Implements the Dreicer (primary) generation mechanism and the
 /// Rosenbluth-Putvinski avalanche (secondary) multiplication model.
-/// Based on the physics described in arXiv:2403.04948v1.
+/// Based on the physics described in https://arxiv.org/abs/2403.04948.
 
 #include "physics/runaway_electrons.h"
 #include "utils/physical_constants.h"
