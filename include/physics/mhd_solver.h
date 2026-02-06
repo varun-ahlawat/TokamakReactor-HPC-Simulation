@@ -29,6 +29,8 @@ struct MHDConfig {
     double B0 = 5.3;              // Toroidal field strength [T]
     double R0 = 6.2;              // Major radius [m]
     double a = 2.0;               // Minor radius [m]
+    double elongation = 1.7;      // Plasma elongation κ (ITER: ~1.7)
+    double triangularity = 0.33;  // Plasma triangularity δ (ITER: ~0.33)
     double q0 = 1.0;              // Safety factor on axis
     double q_edge = 3.0;          // Safety factor at edge
 

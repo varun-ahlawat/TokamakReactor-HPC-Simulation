@@ -33,40 +33,44 @@ void MHDSolver::initialize_equilibrium() {
     double B0 = config_.B0;
     double q0 = config_.q0;
     double q_edge = config_.q_edge;
+    double kappa = config_.elongation;
+    double delta = config_.triangularity;
 
-    // Simplified Grad-Shafranov equilibrium:
-    // Assumes circular cross-section, large aspect ratio
-    // Safety factor profile: q(r) = q0 + (q_edge - q0) * (r/a)²
-    // Poloidal flux: ψ(r) ∝ ∫ r * B_θ dr, where B_θ = r * B0 / (R0 * q(r))
+    // Simplified Grad-Shafranov equilibrium with D-shaped (Miller) geometry:
+    //   R(ρ,θ) = R₀ + ρ·a·cos(θ + δ·sin(θ))
+    //   Z(ρ,θ) = ρ·κ·a·sin(θ)
+    // where ρ is the normalized minor radius, θ is the poloidal angle,
+    // κ is elongation and δ is triangularity.
+    //
+    // Safety factor profile: q(ρ) = q₀ + (q_edge - q₀) × ρ²
+    // Profiles use ρ from the shaped geometry for proper flux surface mapping.
 
     state_.density.fill([&](double R, double Z) -> double {
-        double r = std::sqrt((R - R0) * (R - R0) + Z * Z);
-        double rho_norm = r / a;
+        double rho_norm = grid_.normalized_radius(R, Z, R0, a, kappa, delta);
         if (rho_norm > 1.0) return 0.1; // Low density outside plasma
-        // Parabolic density profile: n(r) = n0 * (1 - (r/a)²)^0.5
+        // Parabolic density profile: n(ρ) = n₀ × (1 - ρ²)^0.5
         return 1.0 * std::sqrt(std::max(0.0, 1.0 - rho_norm * rho_norm)) + 0.1;
     });
 
     state_.pressure.fill([&](double R, double Z) -> double {
-        double r = std::sqrt((R - R0) * (R - R0) + Z * Z);
-        double rho_norm = r / a;
+        double rho_norm = grid_.normalized_radius(R, Z, R0, a, kappa, delta);
         if (rho_norm > 1.0) return 0.01;
-        // Pressure profile: p(r) = p0 * (1 - (r/a)²)²
+        // Pressure profile: p(ρ) = p₀ × (1 - ρ²)²
         double x = 1.0 - rho_norm * rho_norm;
         return 1.0 * x * x + 0.01;
     });
 
     state_.Btor.fill([&](double R, double /*Z*/) -> double {
-        // Toroidal field: B_φ = B0 * R0 / R (1/R dependence)
+        // Toroidal field: B_φ = B₀ × R₀ / R (1/R dependence, shape-independent)
         return B0 * R0 / R;
     });
 
     state_.Bpol_psi.fill([&](double R, double Z) -> double {
-        double r = std::sqrt((R - R0) * (R - R0) + Z * Z);
-        double rho_norm = r / a;
+        double rho_norm = grid_.normalized_radius(R, Z, R0, a, kappa, delta);
         if (rho_norm > 1.0) rho_norm = 1.0;
-        // Poloidal flux function (simplified):
-        // ψ(r) = ψ_0 * (1 - (1 - (r/a)²)²) with q-profile dependence
+        // Poloidal flux function (simplified shaped equilibrium):
+        // ψ(ρ) = ψ₀ × (1 - (1 - ρ²)²) with q-profile dependence
+        // The flux is a function of ρ only (flux surfaces are labeled by ρ).
         double q_r = q0 + (q_edge - q0) * rho_norm * rho_norm;
         double psi = B0 * a * a / (2.0 * R0 * q_r) *
                      (1.0 - std::pow(1.0 - rho_norm * rho_norm, 2));
@@ -80,6 +84,8 @@ void MHDSolver::initialize_equilibrium() {
 void MHDSolver::apply_perturbation() {
     double R0 = config_.R0;
     double a  = config_.a;
+    double kappa = config_.elongation;
+    double delta = config_.triangularity;
     int m = config_.perturbation_m;
     double amp = config_.perturbation_amplitude;
 
@@ -88,17 +94,18 @@ void MHDSolver::apply_perturbation() {
         for (int j = 0; j < grid_.nz(); ++j) {
             double R = grid_.R(i);
             double Z = grid_.Z(j);
-            double r = std::sqrt((R - R0) * (R - R0) + Z * Z);
-            double theta = std::atan2(Z, R - R0);
-            double rho_norm = r / a;
+            double rho_norm = grid_.normalized_radius(R, Z, R0, a, kappa, delta);
             if (rho_norm > 1.0) continue;
+
+            double theta = std::atan2(Z, R - R0);
 
             // Perturbation localized near rational surface (q=m/n)
             double r_s = a * std::sqrt((config_.q0 - 1.0) /
                          (config_.q_edge - config_.q0 + 1e-10));
             r_s = std::min(r_s, 0.9 * a);
+            double r_equiv = rho_norm * a; // Equivalent circular radius
             double width = 0.1 * a;
-            double radial_env = std::exp(-(r - r_s) * (r - r_s) /
+            double radial_env = std::exp(-(r_equiv - r_s) * (r_equiv - r_s) /
                                          (2.0 * width * width));
 
             state_.Bpol_psi(i, j) += amp * radial_env * std::cos(m * theta);

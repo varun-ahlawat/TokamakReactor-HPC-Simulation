@@ -85,6 +85,10 @@ endif()
 add_executable(tokamak_sim src/main.cpp)
 target_link_libraries(tokamak_sim PRIVATE tokamak_lib)
 
+# Field dumper for visualization
+add_executable(dump_fields src/dump_fields.cpp)
+target_link_libraries(dump_fields PRIVATE tokamak_lib)
+
 # Tests
 enable_testing()
 add_executable(run_tests tests/test_main.cpp)

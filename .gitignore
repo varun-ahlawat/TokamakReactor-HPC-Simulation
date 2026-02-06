@@ -20,6 +20,7 @@ run_tests
 
 # Output data
 output/
+viz_output/
 *.h5
 *.hdf5
 *.dat

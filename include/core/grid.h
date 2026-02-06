@@ -60,9 +60,21 @@ public:
     /// Total number of grid points
     size_t total_points() const { return static_cast<size_t>(nr_) * nz_; }
 
-    /// Check if point (R,Z) is inside the tokamak plasma region (elliptical)
+    /// Check if point (R,Z) is inside the tokamak plasma region.
+    /// Uses a Miller-parameterized D-shaped cross-section:
+    ///   R(θ) = R₀ + a·cos(θ + δ·sin(θ))
+    ///   Z(θ) = κ·a·sin(θ)
+    /// where κ is elongation (1.0 = circular) and δ is triangularity (0.0 = symmetric).
     bool is_inside_plasma(double R, double Z, double R0, double a,
-                          double elongation = 1.0) const;
+                          double elongation = 1.0,
+                          double triangularity = 0.0) const;
+
+    /// Compute normalized minor radius ρ for a point (R,Z) in shaped geometry.
+    /// Returns ρ ∈ [0,1] inside plasma, >1 outside.
+    /// Uses the Miller parameterization with elongation κ and triangularity δ.
+    double normalized_radius(double R, double Z, double R0, double a,
+                             double elongation = 1.0,
+                             double triangularity = 0.0) const;
 
     /// Domain decomposition info
     const DomainDecomp& decomp() const { return decomp_; }

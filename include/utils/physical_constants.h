@@ -20,6 +20,8 @@ constexpr double keV_to_J   = 1.602176634e-16;   // keV to Joules conversion
 // Tokamak-specific defaults (ITER-like parameters)
 constexpr double default_major_radius  = 6.2;    // Major radius R₀ [m]
 constexpr double default_minor_radius  = 2.0;    // Minor radius a [m]
+constexpr double default_elongation    = 1.7;    // Plasma elongation κ
+constexpr double default_triangularity = 0.33;   // Plasma triangularity δ
 constexpr double default_B_toroidal    = 5.3;    // Toroidal field on axis [T]
 constexpr double default_plasma_current= 15.0e6; // Plasma current [A]
 constexpr double default_n_e           = 1.0e20; // Electron density [m⁻³]

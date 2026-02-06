@@ -160,10 +160,11 @@ def plot_field_snapshot(R, Z, data, title, filename, output_dir,
     ax.set_title(title, fontsize=14)
     ax.set_aspect('equal')
 
-    # Draw tokamak outline (simplified circular cross-section)
-    theta = np.linspace(0, 2 * np.pi, 100)
-    R0, a = 6.2, 2.0
-    ax.plot(R0 + a * np.cos(theta), a * np.sin(theta), 'w--',
+    # Draw tokamak outline (D-shaped Miller cross-section)
+    theta = np.linspace(0, 2 * np.pi, 200)
+    R0, a, kappa, delta = 6.2, 2.0, 1.7, 0.33
+    ax.plot(R0 + a * np.cos(theta + delta * np.sin(theta)),
+            kappa * a * np.sin(theta), 'w--',
             linewidth=1.5, alpha=0.7, label='Plasma boundary')
     ax.legend(loc='upper right')
 
