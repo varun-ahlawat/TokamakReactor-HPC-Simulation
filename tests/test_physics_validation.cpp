@@ -134,13 +134,15 @@ TEST(spitzer_resistivity_temperature_scaling) {
     // Verify that η(T1) / η(T2) ≈ (T2/T1)^{3/2} for fixed Zeff and lnΛ.
     double ne = 1.0e20;
     double Zeff = 1.7;
-    double lnL = 17.0;  // Fixed to isolate temperature scaling
+    // lnΛ is deliberately fixed (not computed from ne,Te) to isolate the
+    // temperature power-law dependence η ∝ T^{-3/2} in Spitzer's formula.
+    double lnL_fixed = 17.0;
 
     double T1 = 10.0;  // keV (hot plasma)
     double T2 = 0.1;   // keV (100 eV, warm plasma)
 
-    double eta1 = constants::spitzer_resistivity(T1, Zeff, lnL);
-    double eta2 = constants::spitzer_resistivity(T2, Zeff, lnL);
+    double eta1 = constants::spitzer_resistivity(T1, Zeff, lnL_fixed);
+    double eta2 = constants::spitzer_resistivity(T2, Zeff, lnL_fixed);
 
     double ratio_actual = eta2 / eta1;
     double ratio_expected = std::pow(T1 / T2, 1.5);  // (10/0.1)^1.5 = 31623
@@ -307,12 +309,13 @@ TEST(dreicer_field_temperature_scaling) {
     double T1 = 10.0;   // keV
     double T2 = 0.01;   // keV
 
-    // Use same lnΛ to isolate temperature scaling
-    double lnL = 17.0;
-    double Ed1 = ne * std::pow(constants::e_charge, 3) * lnL /
+    // lnΛ is deliberately fixed (not computed from ne,Te) to isolate the
+    // 1/T dependence of the Dreicer field formula.
+    double lnL_fixed = 17.0;
+    double Ed1 = ne * std::pow(constants::e_charge, 3) * lnL_fixed /
         (4.0 * M_PI * constants::epsilon_0 * constants::epsilon_0 *
          T1 * constants::keV_to_J);
-    double Ed2 = ne * std::pow(constants::e_charge, 3) * lnL /
+    double Ed2 = ne * std::pow(constants::e_charge, 3) * lnL_fixed /
         (4.0 * M_PI * constants::epsilon_0 * constants::epsilon_0 *
          T2 * constants::keV_to_J);
 
@@ -320,8 +323,8 @@ TEST(dreicer_field_temperature_scaling) {
     ASSERT_NEAR(Ed2 / Ed1, T1 / T2, (T1 / T2) * 1e-10);
 
     // Now verify the code function matches
-    double Ed_code_1 = constants::dreicer_field(ne, T1, lnL);
-    double Ed_code_2 = constants::dreicer_field(ne, T2, lnL);
+    double Ed_code_1 = constants::dreicer_field(ne, T1, lnL_fixed);
+    double Ed_code_2 = constants::dreicer_field(ne, T2, lnL_fixed);
     ASSERT_NEAR(Ed_code_1, Ed1, Ed1 * 1e-10);
     ASSERT_NEAR(Ed_code_2, Ed2, Ed2 * 1e-10);
 }
